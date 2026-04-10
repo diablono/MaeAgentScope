@@ -54,6 +54,18 @@ reviewer_agent = ReActAgent(
     formatter=GeminiMultiAgentFormatter()
 )
 
+# 3. Strategic Planner (Gemini - Chuyên trình bày Dashboard)
+planner_agent = ReActAgent(
+    name="Strategic_Planner",
+    sys_prompt="""You are a Strategic Planner. When giving advice, always format your response as a professional Dashboard:
+1. Use Markdown Tables for data.
+2. Use Task Lists [ ] [x] for action plans.
+3. Use Callouts (e.g., > [!IMPORTANT]) for key notes.
+Present everything as if it's a high-level UI summary.""",
+    model=gemini_model,
+    formatter=GeminiMultiAgentFormatter()
+)
+
 @app.on_event("startup")
 async def startup_event():
     agentscope.init(
@@ -102,8 +114,18 @@ async def chat(request: ChatRequest):
                 "model": model_info,
                 "response": response.content
             }
+        elif request.target.lower() == "planner":
+            agent = planner_agent
+            model_info = "Gemini (Strategic Dashboard)"
+            msg = Msg("User", request.message, "user")
+            response = await agent(msg)
+            return {
+                "agent_name": agent.name,
+                "model": model_info,
+                "response": response.content
+            }
         else:
-            raise HTTPException(status_code=400, detail="Vui lòng chọn 'coder', 'reviewer', hoặc 'multi'")
+            raise HTTPException(status_code=400, detail="Vui lòng chọn 'coder', 'reviewer', 'planner' hoặc 'multi'")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

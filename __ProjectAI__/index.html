@@ -48,8 +48,8 @@ window.BACKEND_CONFIG = window.BACKEND_CONFIG || {
 };
 
 window.AGENTSCOPE_CONFIG = window.AGENTSCOPE_CONFIG || {
-  baseUrl: 'http://127.0.0.1:8000',
-  defaultModel: 'agentscope:coder'
+  baseUrl: 'https://maeagentscope-production.up.railway.app',
+  defaultModel: 'agentscope:multi'
 };
 
 window.ENABLE_PUTER = window.ENABLE_PUTER === true;
@@ -248,6 +248,7 @@ window.ENABLE_PUTER = window.ENABLE_PUTER === true;
           </optgroup>
           <optgroup label="AgentScope Studio">
             <option value="agentscope:multi" selected>Cặp đôi hoàn hảo (Coder + Reviewer)</option>
+            <option value="agentscope:planner">Chuyên gia Kế hoạch (Strategic Dashboard)</option>
             <option value="agentscope:coder">Agent Coder (Groq Llama 3.1)</option>
             <option value="agentscope:reviewer">Agent Reviewer (Gemini 1.5 Flash)</option>
           </optgroup>
