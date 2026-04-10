@@ -19,7 +19,12 @@ if [ -d "$STUDIO_PATH" ]; then
     echo "MaeAI Theme applied!"
 fi
 
+# Studio PHẢI chạy ở port 3000 (tách biệt với PORT Railway = 8080)
+# Nếu không unset PORT, as_studio sẽ lấy PORT=8080 và xung đột với FastAPI
+PORT_BACKUP=$PORT
+unset PORT
 as_studio --port 3000 --host 0.0.0.0 &
+export PORT=$PORT_BACKUP
 
 # 2. Đợi Studio khởi động (Tối đa 30 giây)
 echo "Waiting for MaeAI Agent Studio to be ready on port 3000..."

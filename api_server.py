@@ -1,5 +1,7 @@
 import os
 import asyncio
+import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -10,22 +12,15 @@ from agentscope.pipeline import MsgHub
 from agentscope.message import Msg
 import agentscope
 
-app = FastAPI(title="AgentScope Multi-Model API")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+logger = logging.getLogger("maeai")
 
 # --- Lấy API Keys từ môi trường ---
-GROQ_KEY = os.getenv("GROQ_API_KEY")
+GROQ_KEY  = os.getenv("GROQ_API_KEY")
 GEMINI_KEY = os.getenv("GEMINI_API_KEY")
+# Studio chạy nội bộ ở port 3000 (tách biệt với PORT của Railway)
 STUDIO_URL = os.getenv("STUDIO_URL", "http://127.0.0.1:3000")
 
-# --- Khởi tạo 2 Model hoàn toàn khác nhau ---
+# --- Khởi tạo Models ---
 groq_model = OpenAIChatModel(
     model_name="llama-3.1-8b-instant",
     api_key=GROQ_KEY,
@@ -37,8 +32,7 @@ gemini_model = GeminiChatModel(
     api_key=GEMINI_KEY
 )
 
-# --- Định nghĩa 2 Agent với Model riêng biệt ---
-# 1. Coder (Sử dụng Groq)
+# --- Định nghĩa Agents ---
 coder_agent = ReActAgent(
     name="Coder_Groq",
     sys_prompt="You are a speed-focused Python programmer using Groq Llama 3.",
@@ -46,7 +40,6 @@ coder_agent = ReActAgent(
     formatter=OpenAIMultiAgentFormatter()
 )
 
-# 2. Reviewer (Sử dụng Gemini)
 reviewer_agent = ReActAgent(
     name="Reviewer_Gemini",
     sys_prompt="You are a careful code reviewer using Google Gemini 1.5.",
@@ -54,7 +47,6 @@ reviewer_agent = ReActAgent(
     formatter=GeminiMultiAgentFormatter()
 )
 
-# 3. Strategic Planner (Gemini - Chuyên trình bày Dashboard)
 planner_agent = ReActAgent(
     name="Strategic_Planner",
     sys_prompt="""You are a Strategic Planner. When giving advice, always format your response as a professional Dashboard:
@@ -66,69 +58,88 @@ Present everything as if it's a high-level UI summary.""",
     formatter=GeminiMultiAgentFormatter()
 )
 
-@app.on_event("startup")
-async def startup_event():
-    agentscope.init(
-        project="MaeAI_Agent_Studio",
-        name=f"Production_Run_{os.getenv('RAILWAY_SERVICE_ID', 'Local')}",
-        studio_url=STUDIO_URL
-    )
+# --- Lifespan Event Handler (thay thế on_event deprecated) ---
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Kết nối tới Studio nếu có — KHÔNG crash nếu Studio chưa sẵn sàng
+    try:
+        agentscope.init(
+            project="MaeAI_Agent_Studio",
+            name=f"Production_Run_{os.getenv('RAILWAY_SERVICE_ID', 'Local')}",
+            studio_url=STUDIO_URL
+        )
+        logger.info(f"✅ Kết nối Studio thành công tại {STUDIO_URL}")
+    except Exception as e:
+        logger.warning(f"⚠️  Studio không kết nối được ({e}) — tiếp tục không có Studio")
+
+    yield  # ← Ứng dụng chạy ở đây
+
+    # Cleanup khi shutdown (nếu cần)
+    logger.info("MaeAI API Server đang tắt...")
+
+# --- Khởi tạo FastAPI với lifespan ---
+app = FastAPI(title="MaeAI Agent API", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class ChatRequest(BaseModel):
     message: str
-    target: str # 'coder' hoặc 'reviewer'
+    target: str  # 'coder', 'reviewer', 'planner', 'multi'
 
 @app.post("/chat")
 async def chat(request: ChatRequest):
     try:
-        # Lựa chọn Agent & Model dựa trên yêu cầu từ Website
-        if request.target.lower() == "multi":
+        target = request.target.lower()
+
+        if target == "multi":
             msg = Msg("User", f"Đề bài: {request.message}", "user")
             async with MsgHub(participants=[coder_agent, reviewer_agent], announcement=msg):
-                res_coder = await coder_agent()
+                res_coder   = await coder_agent()
                 res_reviewer = await reviewer_agent()
-                
-            combined = f"### 💡 Kết quả từ Team Multi-Agent\n\n#### 👨‍💻 Coder (Llama 3.1):\n{res_coder.content}\n\n---\n\n#### 🕵️‍♂️ Reviewer (Gemini 1.5):\n{res_reviewer.content}"
-            return {
-                "agent_name": "Multi-Agent Team",
-                "model": "Hybrid (Groq + Gemini)",
-                "response": combined
-            }
-        elif request.target.lower() == "coder":
-            agent = coder_agent
-            model_info = "Groq (Llama 3.1)"
+            combined = (
+                f"### 💡 Kết quả từ Team Multi-Agent\n\n"
+                f"#### 👨‍💻 Coder (Llama 3.1):\n{res_coder.content}\n\n---\n\n"
+                f"#### 🕵️‍♂️ Reviewer (Gemini 1.5):\n{res_reviewer.content}"
+            )
+            return {"agent_name": "Multi-Agent Team", "model": "Hybrid (Groq + Gemini)", "response": combined}
+
+        elif target == "coder":
             msg = Msg("User", request.message, "user")
-            response = await agent(msg)
-            return {
-                "agent_name": agent.name,
-                "model": model_info,
-                "response": response.content
-            }
-        elif request.target.lower() == "reviewer":
-            agent = reviewer_agent
-            model_info = "Gemini (1.5 Flash)"
+            response = await coder_agent(msg)
+            return {"agent_name": coder_agent.name, "model": "Groq (Llama 3.1)", "response": response.content}
+
+        elif target == "reviewer":
             msg = Msg("User", request.message, "user")
-            response = await agent(msg)
-            return {
-                "agent_name": agent.name,
-                "model": model_info,
-                "response": response.content
-            }
-        elif request.target.lower() == "planner":
-            agent = planner_agent
-            model_info = "Gemini (Strategic Dashboard)"
+            response = await reviewer_agent(msg)
+            return {"agent_name": reviewer_agent.name, "model": "Gemini (1.5 Flash)", "response": response.content}
+
+        elif target == "planner":
             msg = Msg("User", request.message, "user")
-            response = await agent(msg)
-            return {
-                "agent_name": agent.name,
-                "model": model_info,
-                "response": response.content
-            }
+            response = await planner_agent(msg)
+            return {"agent_name": planner_agent.name, "model": "Gemini (Strategic Dashboard)", "response": response.content}
+
         else:
-            raise HTTPException(status_code=400, detail="Vui lòng chọn 'coder', 'reviewer', 'planner' hoặc 'multi'")
+            raise HTTPException(status_code=400, detail="target phải là: 'coder', 'reviewer', 'planner', hoặc 'multi'")
+
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/")
 def home():
-    return {"message": "API sẵn sàng", "options": ["coder (Groq)", "reviewer (Gemini)"]}
+    return {
+        "status": "MaeAI API sẵn sàng 🚀",
+        "agents": ["coder (Groq Llama 3.1)", "reviewer (Gemini 1.5)", "planner (Gemini)", "multi (Coder+Reviewer)"],
+        "studio": STUDIO_URL
+    }
+
+@app.get("/health")
+def health():
+    return {"ok": True}
