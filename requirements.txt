@@ -1,0 +1,8 @@
+agentscope
+openai
+dashscope
+groq
+google-genai
+fastapi
+uvicorn
+python-dotenv
