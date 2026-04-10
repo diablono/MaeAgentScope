@@ -1,0 +1,332 @@
+/* ================================================================
+   MaeAI Agent Studio — Custom Theme Override
+   Matching the warm sand/beige aesthetic of the MaeAI project
+   ================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Itim&family=DynaPuff:wght@400;600&family=JetBrains+Mono:wght@400;600&family=Zen+Old+Mincho:wght@400;600&display=swap');
+
+/* ── COLOR TOKENS (MaeAI Palette) ── */
+:root {
+  --primary-50: #fafaf8 !important;
+  --primary-100: #f7f7f5 !important;
+  --primary-200: #f0ede8 !important;
+  --primary-300: #e2ddd4 !important;
+  --primary-400: #c8c0b4 !important;
+  --primary-500: #8a8278 !important;
+  --primary-600: #6a6258 !important;
+  --primary-700: #4b453d !important;
+  --primary-800: #312d28 !important;
+  --primary-900: #1a1714 !important;
+
+  --background: #fafaf8 !important;
+  --foreground: #1a1714 !important;
+  --card: #ffffff !important;
+  --card-foreground: #1a1714 !important;
+  --popover: #ffffff !important;
+  --popover-foreground: #1a1714 !important;
+
+  --primary: #4b453d !important;
+  --primary-foreground: #fafaf8 !important;
+
+  --secondary: #f0ede8 !important;
+  --secondary-foreground: #4b453d !important;
+
+  --muted: #f7f7f5 !important;
+  --muted-foreground: #8a8278 !important;
+
+  --accent: #f0ede8 !important;
+  --accent-foreground: #4b453d !important;
+
+  --border: #e2ddd4 !important;
+  --input: #e2ddd4 !important;
+  --ring: #c8c0b4 !important;
+
+  --sidebar: #f7f7f5 !important;
+  --sidebar-foreground: #1a1714 !important;
+  --sidebar-primary: #4b453d !important;
+  --sidebar-primary-foreground: #fafaf8 !important;
+  --sidebar-accent: #ece9e2 !important;
+  --sidebar-accent-foreground: #4b453d !important;
+  --sidebar-border: #e2ddd4 !important;
+  --sidebar-ring: #c8c0b4 !important;
+
+  --destructive: oklch(57.7% .245 27.325) !important;
+  --radius: 0.75rem !important;
+}
+
+/* ── TYPOGRAPHY ── */
+html, body, #root, * {
+  font-family: 'DynaPuff', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* Headings dùng Zen Old Mincho (serif logo) */
+h1, h2 {
+  font-family: 'Zen Old Mincho', 'Noto Serif JP', ui-serif, Georgia, serif !important;
+}
+
+/* Code Monospace */
+code, pre, .font-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+}
+
+/* ── BACKGROUND & LAYOUT ── */
+body, #root {
+  background: #fafaf8 !important;
+}
+
+/* Sidebar */
+[data-sidebar="sidebar"],
+.bg-sidebar,
+aside {
+  background: #f7f7f5 !important;
+  border-right: 1px solid #e2ddd4 !important;
+}
+
+/* Header / Topbar */
+header,
+[class*="header"],
+nav {
+  background: rgba(250, 250, 248, 0.94) !important;
+  border-bottom: 1px solid #e2ddd4 !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* Cards */
+[class*="card"],
+.bg-card {
+  background: #ffffff !important;
+  border: 1px solid #e2ddd4 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05) !important;
+}
+
+/* ── ACCENT COLOR (Blue → Warm Brown) ── */
+/* Primary buttons */
+.bg-primary,
+button[class*="bg-primary"],
+[class*="bg-sidebar-primary"] {
+  background: #4b453d !important;
+  color: #fafaf8 !important;
+}
+
+.bg-primary:hover,
+button[class*="bg-primary"]:hover {
+  background: #312d28 !important;
+}
+
+/* Borders & rings */
+[class*="border-primary"],
+[class*="ring-primary"] {
+  border-color: #c8c0b4 !important;
+}
+
+/* Text accent */
+.text-primary,
+.text-sidebar-primary {
+  color: #4b453d !important;
+}
+
+/* Muted bg for active items */
+.bg-accent,
+[class*="bg-sidebar-accent"],
+[data-active="true"],
+[data-state="active"] {
+  background: #ece9e2 !important;
+  color: #4b453d !important;
+}
+
+/* ── TABLE STYLES (MaeAI warm table) ── */
+table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  border: 1px solid #e2ddd4 !important;
+}
+
+th {
+  background: #f6f3ee !important;
+  padding: 8px 12px !important;
+  font-weight: 600 !important;
+  color: #4b453d !important;
+  border-bottom: 1px solid #e2ddd4 !important;
+}
+
+td {
+  padding: 8px 12px !important;
+  border-bottom: 1px solid #ece9e2 !important;
+  color: #312d28 !important;
+}
+
+tr:nth-child(even) td {
+  background: #fbf9f7 !important;
+}
+
+tr:last-child td {
+  border-bottom: none !important;
+}
+
+/* ── CODE BLOCK (MaeAI warm code) ── */
+pre, [class*="code-block"], [class*="bg-\\[\\#"] {
+  background: #f0ede8 !important;
+  border: 1px solid #e2ddd4 !important;
+  border-radius: 12px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  color: #3f3b36 !important;
+}
+
+code {
+  background: rgba(210, 72, 72, 0.08) !important;
+  color: #d24848 !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+}
+
+/* ── INPUT & FORM ELEMENTS ── */
+input, textarea, select {
+  background: #ffffff !important;
+  border: 1px solid #e2ddd4 !important;
+  color: #1a1714 !important;
+  font-family: 'DynaPuff', sans-serif !important;
+  border-radius: 10px !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #c8c0b4 !important;
+  box-shadow: 0 0 0 3px rgba(200, 192, 180, 0.25) !important;
+  outline: none !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #8a8278 !important;
+}
+
+/* ── BADGES & PILLS ── */
+[class*="badge"],
+[class*="rounded-full"][class*="bg-"] {
+  font-family: 'DynaPuff', sans-serif !important;
+}
+
+/* Status badges - success green */
+[class*="bg-green"], [class*="bg-emerald"] {
+  background: #dcfce7 !important;
+  color: #166534 !important;
+}
+
+/* Status badges - error red */
+[class*="bg-red"], [class*="bg-destructive"] {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+/* ── SIDEBAR LOGO AREA ── */
+/* Brand text */
+[class*="text-lg"][class*="font-semibold"],
+[class*="font-bold"]:first-child {
+  font-family: 'Zen Old Mincho', Georgia, serif !important;
+  letter-spacing: -0.02em !important;
+  color: #1a1714 !important;
+}
+
+/* ── CHAT BUBBLES ── */
+/* User message */
+[class*="bg-\\[\\#343541\\]"] {
+  background: #f6f1e7 !important;
+  color: #14120f !important;
+  border: 1px solid #eadfce !important;
+  border-radius: 22px 22px 8px 22px !important;
+}
+
+/* ── SCROLLBARS ── */
+::-webkit-scrollbar {
+  width: 5px !important;
+  height: 5px !important;
+}
+::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4c9bc !important;
+  border-radius: 3px !important;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8a8278 !important;
+}
+
+/* ── HOVER STATES ── */
+[class*="hover\\:bg-accent"]:hover,
+[class*="hover\\:bg-muted"]:hover,
+[class*="hover\\:bg-sidebar-accent"]:hover {
+  background: #ece9e2 !important;
+}
+
+/* ── TOAST / ALERTS ── */
+[class*="bg-amber"] {
+  background: #fef3c7 !important;
+  border-color: #fde68a !important;
+  color: #92400e !important;
+}
+
+/* ── LOGO REPLACEMENT TEXT ── */
+/* Overwrite any hardcoded AgentScope text styling */
+[class*="title"], [class*="brand"] {
+  letter-spacing: -0.03em !important;
+}
+
+/* Project title in run list */
+.as-project-row {
+  background: #ffffff !important;
+  border-bottom: 1px solid #ece9e2 !important;
+}
+
+.as-project-row:hover {
+  background: #f6f3ee !important;
+}
+
+/* ── MICRO-ANIMATIONS ── */
+button, [role="button"], a {
+  transition: all 0.15s ease !important;
+}
+
+/* ── MARKDOWN CONTENT ── */
+[class*="prose"] p,
+[class*="markdown"] p {
+  line-height: 1.75 !important;
+  color: #312d28 !important;
+}
+
+[class*="prose"] h1, [class*="prose"] h2, [class*="prose"] h3,
+[class*="markdown"] h1, [class*="markdown"] h2, [class*="markdown"] h3 {
+  font-family: 'Zen Old Mincho', Georgia, serif !important;
+  color: #1a1714 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* ── SPLITTER BAR ── */
+.ant-splitter-bar-dragger:before {
+  background: #e2ddd4 !important;
+}
+
+/* ── TABS ── */
+[class*="TabsTrigger"][data-state="active"],
+[role="tab"][data-state="active"] {
+  background: #ece9e2 !important;
+  color: #4b453d !important;
+  font-weight: 600 !important;
+}
+
+/* ── SELECT DROPDOWNS ── */
+[class*="SelectContent"],
+[data-radix-popper-content-wrapper] > div {
+  background: #ffffff !important;
+  border: 1px solid #e2ddd4 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.10) !important;
+}
+
+[role="option"]:hover,
+[class*="SelectItem"]:hover {
+  background: #f0ede8 !important;
+  color: #1a1714 !important;
+}

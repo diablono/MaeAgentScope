@@ -4,9 +4,19 @@
 STUDIO_PATH=$(npm root -g)/@agentscope/studio/dist/public
 if [ -d "$STUDIO_PATH" ]; then
     echo "Apply MaeAI Branding to Studio..."
+
+    # Thay đổi tiêu đề
     sed -i 's/<title>AgentScope Studio<\/title>/<title>MaeAI Agent Studio<\/title>/g' "$STUDIO_PATH/index.html"
-    # Nhúng script đổi text động
-    sed -i '/<\/body>/i <script>setInterval(() => { document.querySelectorAll("*").forEach(el => { if (el.children.length === 0 && el.textContent.trim() === "AgentScope Studio") el.textContent = "MaeAI Agent Studio"; if (el.children.length === 0 && el.textContent.trim() === "AgentScope") el.textContent = "MaeAI"; }); }, 1000);<\/script>' "$STUDIO_PATH/index.html"
+
+    # Copy theme CSS vào thư mục tài nguyên của Studio
+    cp /app/assets/maeai-theme.css "$STUDIO_PATH/assets/maeai-theme.css"
+
+    # Nhúng Google Fonts + Theme CSS + JS Rebranding (chỉ khi chưa nhúng)
+    if ! grep -q "maeai-theme.css" "$STUDIO_PATH/index.html"; then
+        sed -i 's|</head>|<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@400;600\&family=JetBrains+Mono:wght@400;600\&family=Zen+Old+Mincho:wght@400;600\&display=swap" rel="stylesheet"><link rel="stylesheet" href="/assets/maeai-theme.css"></head>|' "$STUDIO_PATH/index.html"
+        sed -i '/<\/body>/i <script>setInterval(() => { document.querySelectorAll("*").forEach(el => { if (el.children.length === 0 \&\& el.textContent.trim() === "AgentScope Studio") el.textContent = "MaeAI Agent Studio"; if (el.children.length === 0 \&\& el.textContent.trim() === "AgentScope") el.textContent = "MaeAI"; }); }, 1000);<\/script>' "$STUDIO_PATH/index.html"
+    fi
+    echo "MaeAI Theme applied!"
 fi
 
 as_studio --port 3000 --host 0.0.0.0 &
