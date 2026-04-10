@@ -1,6 +1,14 @@
 #!/bin/bash
 
-# 1. Khởi chạy AgentScope Studio ở cổng 3000 (chạy ngầm)
+# 1. Tự động Rebranding Studio sang MaeAI
+STUDIO_PATH=$(npm root -g)/@agentscope/studio/dist/public
+if [ -d "$STUDIO_PATH" ]; then
+    echo "Apply MaeAI Branding to Studio..."
+    sed -i 's/<title>AgentScope Studio<\/title>/<title>MaeAI Agent Studio<\/title>/g' "$STUDIO_PATH/index.html"
+    # Nhúng script đổi text động
+    sed -i '/<\/body>/i <script>setInterval(() => { document.querySelectorAll("*").forEach(el => { if (el.children.length === 0 && el.textContent.trim() === "AgentScope Studio") el.textContent = "MaeAI Agent Studio"; if (el.children.length === 0 && el.textContent.trim() === "AgentScope") el.textContent = "MaeAI"; }); }, 1000);<\/script>' "$STUDIO_PATH/index.html"
+fi
+
 as_studio --port 3000 --host 0.0.0.0 &
 
 # 2. Đợi một lát để Studio khởi động xong

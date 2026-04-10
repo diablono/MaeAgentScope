@@ -69,8 +69,8 @@ Present everything as if it's a high-level UI summary.""",
 @app.on_event("startup")
 async def startup_event():
     agentscope.init(
-        project="Hybrid_Model_Project",
-        name="ProductionRun",
+        project="MaeAI_Agent_Studio",
+        name=f"Production_Run_{os.getenv('RAILWAY_SERVICE_ID', 'Local')}",
         studio_url=STUDIO_URL
     )
 
