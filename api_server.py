@@ -64,7 +64,7 @@ async def lifespan(app: FastAPI):
     # Kết nối tới Studio nếu có — KHÔNG crash nếu Studio chưa sẵn sàng
     try:
         agentscope.init(
-            project="MaeAI_Agent_Studio",
+            project="Chatbot",
             name=f"Production_Run_{os.getenv('RAILWAY_SERVICE_ID', 'Local')}",
             studio_url=STUDIO_URL
         )
