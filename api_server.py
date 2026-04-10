@@ -23,7 +23,7 @@ app.add_middleware(
 # --- Lấy API Keys từ môi trường ---
 GROQ_KEY = os.getenv("GROQ_API_KEY")
 GEMINI_KEY = os.getenv("GEMINI_API_KEY")
-STUDIO_URL = os.getenv("STUDIO_URL", "http://localhost:3000")
+STUDIO_URL = os.getenv("STUDIO_URL", "http://127.0.0.1:3000")
 
 # --- Khởi tạo 2 Model hoàn toàn khác nhau ---
 groq_model = OpenAIChatModel(

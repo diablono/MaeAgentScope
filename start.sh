@@ -11,8 +11,19 @@ fi
 
 as_studio --port 3000 --host 0.0.0.0 &
 
-# 2. Đợi một lát để Studio khởi động xong
-sleep 5
+# 2. Đợi Studio khởi động (Tối đa 30 giây)
+echo "Waiting for MaeAI Agent Studio to be ready on port 3000..."
+MAX_RETRIES=30
+COUNT=0
+while ! curl -s http://127.0.0.1:3000 > /dev/null; do
+    sleep 1
+    COUNT=$((COUNT+1))
+    if [ $COUNT -ge $MAX_RETRIES ]; then
+        echo "Warning: Studio is taking too long to start, proceeding anyway..."
+        break
+    fi
+done
+echo "Studio is ready! Starting FastAPI Server..."
 
 # 3. Khởi chạy FastAPI Server ở cổng do Railway cung cấp ($PORT)
 # $PORT là cổng công khai mà website của bạn sẽ gọi vào
